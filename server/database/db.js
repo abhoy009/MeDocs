@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const Connection = async () => {
-    const MongoURL = "mongodb+srv://abhoy009:pass@gdocs.heapy.mongodb.net/";
+    const MongoURL = "";
 
     try {
         await mongoose.connect(MongoURL);
