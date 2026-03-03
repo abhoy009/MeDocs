@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const Connection = async () => {
-    const MongoURL = "";
+    const MongoURL = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/meDocs";
 
     try {
         await mongoose.connect(MongoURL);

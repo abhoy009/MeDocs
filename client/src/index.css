@@ -1,0 +1,65 @@
+/* === Global Reset & CSS Variables === */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colors */
+  --color-bg: #f0f4f9;
+  --color-surface: #ffffff;
+  --color-primary: #1a73e8;
+  --color-primary-hover: #1557b0;
+  --color-primary-light: #e8f0fe;
+  --color-navbar: #ffffff;
+  --color-text: #202124;
+  --color-text-secondary: #5f6368;
+  --color-text-muted: #80868b;
+  --color-border: #e0e0e0;
+  --color-toolbar-bg: #ffffff;
+  --color-hover: #f1f3f4;
+  --color-saved: #188038;
+  --color-saving: #f29900;
+
+  /* Shadows */
+  --shadow-navbar: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.06);
+
+  /* Typography */
+  --font: 'Inter', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --navbar-height: 64px;
+  --toolbar-height: 48px;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4c7cd;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9aa0a6;
+}
