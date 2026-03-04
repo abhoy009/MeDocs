@@ -12,8 +12,8 @@
     top: calc(100% + 4px);
     left: 0;
     min-width: 240px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
     z-index: 1000;
@@ -108,4 +108,18 @@
 .navbar-menu-item.active {
     background-color: var(--color-hover);
     color: var(--color-text);
+}
+
+/* === Dark mode overrides === */
+
+[data-theme="dark"] .dropdown-panel {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .dropdown-item.danger {
+    color: #ff6b6b;
+}
+
+[data-theme="dark"] .dropdown-item.danger:hover {
+    background-color: rgba(255, 107, 107, 0.12);
 }

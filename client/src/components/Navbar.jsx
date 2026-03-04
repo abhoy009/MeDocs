@@ -167,6 +167,19 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
     const [toolbarVisible, setToolbarVisible] = useState(true);
     const fileInputRef = useRef(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [isDark, setIsDark] = useState(() => {
+        const saved = localStorage.getItem('medocs-theme');
+        if (saved) return saved === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    });
+
+    // Apply theme to <html> on mount + whenever isDark changes
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('medocs-theme', isDark ? 'dark' : 'light');
+    }, [isDark]);
+
+    const toggleTheme = () => setIsDark(d => !d);
 
     // Sync localTitle when docTitle prop changes (e.g. from another user via socket)
     // but only when the user isn't currently editing the title field
@@ -428,6 +441,16 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
                             <><span className="save-icon">✓</span><span>Saved</span></>
                         )}
                     </div>
+
+                    {/* Theme toggle */}
+                    <button
+                        className="theme-toggle-btn"
+                        onClick={toggleTheme}
+                        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                        aria-label="Toggle theme"
+                    >
+                        {isDark ? '☀️' : '🌙'}
+                    </button>
 
                     <button className="share-btn" onClick={handleShare}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

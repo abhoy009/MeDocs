@@ -1,13 +1,15 @@
 /* === Global Reset & CSS Variables === */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 :root {
-  /* Colors */
+  /* Colors — Light Theme */
   --color-bg: #f0f4f9;
   --color-surface: #ffffff;
   --color-primary: #1a73e8;
@@ -24,8 +26,8 @@
   --color-saving: #f29900;
 
   /* Shadows */
-  --shadow-navbar: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
-  --shadow-card: 0 1px 4px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.06);
+  --shadow-navbar: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.06);
 
   /* Typography */
   --font: 'Inter', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -35,7 +37,31 @@
   --toolbar-height: 48px;
 }
 
-html, body, #root {
+/* === Dark Theme === */
+
+[data-theme="dark"] {
+  --color-bg: #1a1b1e;
+  --color-surface: #25262b;
+  --color-primary: #4ea6ff;
+  --color-primary-hover: #71b8ff;
+  --color-primary-light: #1c2f4a;
+  --color-navbar: #1f2023;
+  --color-text: #e8eaed;
+  --color-text-secondary: #9aa0a6;
+  --color-text-muted: #6b7280;
+  --color-border: #3a3b3f;
+  --color-toolbar-bg: #1f2023;
+  --color-hover: #2a2b30;
+  --color-saved: #4caf72;
+  --color-saving: #f8c555;
+
+  --shadow-navbar: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -46,6 +72,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Scrollbar */
@@ -53,13 +80,24 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #c4c7cd;
   border-radius: 4px;
 }
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #4a4b50;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #9aa0a6;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }
