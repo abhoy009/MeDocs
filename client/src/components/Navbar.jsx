@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import DropdownMenu from './DropdownMenu';
 import Modal from './Modal';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const API = 'http://localhost:9000';
@@ -142,8 +143,10 @@ const AboutModal = ({ onClose }) => (
 
 // ── Helpers ────────────────────────────────────────────────
 
-const downloadFromUrl = async (url, filename) => {
-    const res = await fetch(url);
+const downloadFromUrl = async (url, filename, token) => {
+    const res = await fetch(url, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
     const blob = await res.blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -154,7 +157,8 @@ const downloadFromUrl = async (url, filename) => {
 
 // ── Navbar ─────────────────────────────────────────────────
 
-const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, titleInputRef, toolbarRef }) => {
+const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, currentUserId, accessToken }) => {
+    const { user, logout } = useAuth();
     const [copied, setCopied] = useState(false);
     const [titleEditing, setTitleEditing] = useState(false);
     const [localTitle, setLocalTitle] = useState(docTitle);
@@ -162,6 +166,7 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, titleInputRef
     const [zoom, setZoom] = useState(100);
     const [toolbarVisible, setToolbarVisible] = useState(true);
     const fileInputRef = useRef(null);
+    const [showUserMenu, setShowUserMenu] = useState(false);
 
     // Sync localTitle when docTitle prop changes (e.g. from another user via socket)
     // but only when the user isn't currently editing the title field
@@ -245,20 +250,33 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, titleInputRef
         { divider: true },
         {
             label: 'Download as .txt', icon: '⬇️',
-            action: () => downloadFromUrl(`${API}/api/documents/${docId}/export?format=txt`, `${docTitle}.txt`)
+            action: () => downloadFromUrl(
+                `${API}/api/documents/${docId}/export?format=txt`,
+                `${docTitle}.txt`,
+                accessToken
+            )
         },
         {
             label: 'Download as .json', icon: '⬇️',
-            action: () => downloadFromUrl(`${API}/api/documents/${docId}/export?format=json`, `${docTitle}.json`)
+            action: () => downloadFromUrl(
+                `${API}/api/documents/${docId}/export?format=json`,
+                `${docTitle}.json`,
+                accessToken
+            )
         },
         { divider: true },
         { label: 'Print', icon: '🖨️', shortcut: '⌘P', action: () => window.print() },
         { divider: true },
         {
             label: 'Delete document', icon: '🗑️', danger: true,
+            // Only show as active if current user is the owner
+            disabled: docOwner && currentUserId && docOwner !== currentUserId,
             action: async () => {
                 if (!confirm('Delete this document permanently?')) return;
-                await fetch(`${API}/api/documents/${docId}`, { method: 'DELETE' });
+                await fetch(`${API}/api/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
                 window.location.href = '/';
             }
         },
@@ -418,7 +436,32 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, titleInputRef
                         {copied ? 'Link copied!' : 'Share'}
                     </button>
 
-                    <div className="navbar-avatar" title="You">A</div>
+                    {/* User avatar with sign-out dropdown */}
+                    <div className="navbar-avatar-wrap">
+                        <div
+                            className="navbar-avatar"
+                            title={user?.name || 'You'}
+                            onClick={() => setShowUserMenu(m => !m)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            {user?.name ? user.name[0].toUpperCase() : 'A'}
+                        </div>
+                        {showUserMenu && (
+                            <div className="navbar-user-menu">
+                                <div className="navbar-user-info">
+                                    <strong>{user?.name}</strong>
+                                    <span>{user?.email}</span>
+                                </div>
+                                <div className="navbar-user-divider" />
+                                <button
+                                    className="navbar-user-signout"
+                                    onClick={() => { logout(); setShowUserMenu(false); }}
+                                >
+                                    Sign out
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 

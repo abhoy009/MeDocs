@@ -3,6 +3,7 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Navbar from './Navbar';
 
 const toolbarOptions = [
@@ -25,15 +26,17 @@ const SAVE_INTERVAL_MS = 2000;
 const TITLE_DEBOUNCE_MS = 500;
 
 const Editor = () => {
+    const { accessToken, user } = useAuth();
     const [socket, setSocket] = useState(null);
     const [quill, setQuill] = useState(null);
     const [saveStatus, setSaveStatus] = useState('saved');
     const [docTitle, setDocTitle] = useState('Untitled document');
+    const [docOwner, setDocOwner] = useState(null);
     const { id } = useParams();
     const containerRef = useRef(null);
     const quillRef = useRef(null);
     const socketRef = useRef(null);
-    const titleDebounceRef = useRef(null);
+    const titleDebounce = useRef(null);
 
     // Initialize Quill once
     useEffect(() => {
@@ -60,15 +63,18 @@ const Editor = () => {
         };
     }, []);
 
-    // Connect socket
+    // Connect socket with access token
     useEffect(() => {
-        const s = io('http://localhost:9000');
+        if (!accessToken) return;
+        const s = io('http://localhost:9000', {
+            auth: { token: accessToken }    // passed to socketAuthMiddleware
+        });
         setSocket(s);
         socketRef.current = s;
         return () => s.disconnect();
-    }, []);
+    }, [accessToken]);
 
-    // Send changes to other clients
+    // Send changes
     useEffect(() => {
         if (!socket || !quill) return;
         const handler = (delta, _old, source) => {
@@ -79,7 +85,7 @@ const Editor = () => {
         return () => quill.off('text-change', handler);
     }, [quill, socket]);
 
-    // Receive changes from other clients
+    // Receive changes
     useEffect(() => {
         if (!socket || !quill) return;
         const handler = (delta) => quill.updateContents(delta);
@@ -87,19 +93,20 @@ const Editor = () => {
         return () => socket.off('receive-changes', handler);
     }, [quill, socket]);
 
-    // Load document from server (data + title)
+    // Load document
     useEffect(() => {
         if (!quill || !socket) return;
-        socket.once('load-document', ({ data, title }) => {
+        socket.once('load-document', ({ data, title, owner }) => {
             quill.setContents(data);
             quill.enable();
             quill.focus();
             if (title) setDocTitle(title);
+            if (owner) setDocOwner(owner);
         });
         socket.emit('get-document', id);
     }, [quill, socket, id]);
 
-    // Sync title from another user
+    // Sync title from other users
     useEffect(() => {
         if (!socket) return;
         const handler = (title) => setDocTitle(title);
@@ -107,7 +114,7 @@ const Editor = () => {
         return () => socket.off('title-updated', handler);
     }, [socket]);
 
-    // Auto-save every 2 seconds
+    // Auto-save every 2s
     useEffect(() => {
         if (!socket || !quill) return;
         const interval = setInterval(() => {
@@ -118,11 +125,11 @@ const Editor = () => {
         return () => clearInterval(interval);
     }, [socket, quill]);
 
-    // Save title with debounce when docTitle changes
+    // Save title with debounce
     const handleSetDocTitle = useCallback((newTitle) => {
         setDocTitle(newTitle);
-        if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
-        titleDebounceRef.current = setTimeout(() => {
+        if (titleDebounce.current) clearTimeout(titleDebounce.current);
+        titleDebounce.current = setTimeout(() => {
             socketRef.current?.emit('save-title', newTitle);
         }, TITLE_DEBOUNCE_MS);
     }, []);
@@ -135,6 +142,9 @@ const Editor = () => {
                 setDocTitle={handleSetDocTitle}
                 quill={quill}
                 docId={id}
+                docOwner={docOwner}
+                currentUserId={user?.id}
+                accessToken={accessToken}
             />
             <div className="editor-wrapper">
                 <div ref={containerRef} />

@@ -224,3 +224,76 @@
         display: none;
     }
 }
+
+/* === User avatar dropdown === */
+
+.navbar-avatar-wrap {
+    position: relative;
+}
+
+.navbar-user-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    min-width: 210px;
+    z-index: 1000;
+    animation: dropdownIn 0.12s ease;
+    overflow: hidden;
+}
+
+@keyframes dropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar-user-info {
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navbar-user-info strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.navbar-user-info span {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.navbar-user-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: 0;
+}
+
+.navbar-user-signout {
+    width: 100%;
+    padding: 11px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: var(--font);
+    font-size: 13px;
+    color: #c5221f;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.navbar-user-signout:hover {
+    background: #fce8e6;
+}
