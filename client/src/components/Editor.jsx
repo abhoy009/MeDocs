@@ -22,6 +22,7 @@ const toolbarOptions = [
 ];
 
 const SAVE_INTERVAL_MS = 2000;
+const TITLE_DEBOUNCE_MS = 500;
 
 const Editor = () => {
     const [socket, setSocket] = useState(null);
@@ -31,11 +32,12 @@ const Editor = () => {
     const { id } = useParams();
     const containerRef = useRef(null);
     const quillRef = useRef(null);
+    const socketRef = useRef(null);
+    const titleDebounceRef = useRef(null);
 
     // Initialize Quill once
     useEffect(() => {
-        if (quillRef.current) return; // already initialized
-
+        if (quillRef.current) return;
         const container = containerRef.current;
         if (!container) return;
 
@@ -62,18 +64,17 @@ const Editor = () => {
     useEffect(() => {
         const s = io('http://localhost:9000');
         setSocket(s);
+        socketRef.current = s;
         return () => s.disconnect();
     }, []);
 
     // Send changes to other clients
     useEffect(() => {
         if (!socket || !quill) return;
-
-        const handler = (delta, _oldData, source) => {
+        const handler = (delta, _old, source) => {
             if (source !== 'user') return;
             socket.emit('send-changes', delta);
         };
-
         quill.on('text-change', handler);
         return () => quill.off('text-change', handler);
     }, [quill, socket]);
@@ -81,45 +82,59 @@ const Editor = () => {
     // Receive changes from other clients
     useEffect(() => {
         if (!socket || !quill) return;
-
         const handler = (delta) => quill.updateContents(delta);
         socket.on('receive-changes', handler);
         return () => socket.off('receive-changes', handler);
     }, [quill, socket]);
 
-    // Load document from server
+    // Load document from server (data + title)
     useEffect(() => {
         if (!quill || !socket) return;
-
-        socket.once('load-document', (document) => {
-            quill.setContents(document);
+        socket.once('load-document', ({ data, title }) => {
+            quill.setContents(data);
             quill.enable();
             quill.focus();
+            if (title) setDocTitle(title);
         });
-
         socket.emit('get-document', id);
     }, [quill, socket, id]);
+
+    // Sync title from another user
+    useEffect(() => {
+        if (!socket) return;
+        const handler = (title) => setDocTitle(title);
+        socket.on('title-updated', handler);
+        return () => socket.off('title-updated', handler);
+    }, [socket]);
 
     // Auto-save every 2 seconds
     useEffect(() => {
         if (!socket || !quill) return;
-
         const interval = setInterval(() => {
             setSaveStatus('saving');
             socket.emit('save-document', quill.getContents());
-            // Simulate save confirmation after short delay
             setTimeout(() => setSaveStatus('saved'), 600);
         }, SAVE_INTERVAL_MS);
-
         return () => clearInterval(interval);
     }, [socket, quill]);
+
+    // Save title with debounce when docTitle changes
+    const handleSetDocTitle = useCallback((newTitle) => {
+        setDocTitle(newTitle);
+        if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
+        titleDebounceRef.current = setTimeout(() => {
+            socketRef.current?.emit('save-title', newTitle);
+        }, TITLE_DEBOUNCE_MS);
+    }, []);
 
     return (
         <div className="editor-root">
             <Navbar
                 saveStatus={saveStatus}
                 docTitle={docTitle}
-                setDocTitle={setDocTitle}
+                setDocTitle={handleSetDocTitle}
+                quill={quill}
+                docId={id}
             />
             <div className="editor-wrapper">
                 <div ref={containerRef} />

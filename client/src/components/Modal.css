@@ -1,0 +1,237 @@
+/* === Modal Backdrop === */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: backdropIn 0.15s ease;
+    padding: 24px;
+}
+
+@keyframes backdropIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* === Modal Card === */
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    min-width: 420px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.15s ease;
+    overflow: hidden;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* === Header === */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-text);
+    font-family: var(--font);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    font-family: var(--font);
+    flex-shrink: 0;
+}
+
+.modal-close:hover {
+    background: var(--color-hover);
+    color: var(--color-text);
+}
+
+/* === Body === */
+
+.modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--color-text);
+    flex: 1;
+}
+
+/* === Footer === */
+
+.modal-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* === Reusable Modal Util Styles === */
+
+.modal-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.modal-stat {
+    background: var(--color-hover);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+}
+
+.modal-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-primary);
+    display: block;
+    line-height: 1;
+}
+
+.modal-stat-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-top: 4px;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.modal-table th {
+    text-align: left;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.modal-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.modal-table tr:last-child td {
+    border-bottom: none;
+}
+
+.modal-shortcut-key {
+    display: inline-block;
+    background: var(--color-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    margin-top: 4px;
+    color: var(--color-text);
+    background: white;
+}
+
+.modal-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+.modal-label {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.modal-field {
+    margin-bottom: 14px;
+}
+
+.modal-btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.modal-btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.modal-btn-primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.modal-btn-secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.modal-btn-secondary:hover {
+    background: var(--color-primary-light);
+}
+
+.modal-find-results {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-top: 6px;
+    min-height: 18px;
+}

@@ -1,16 +1,23 @@
 import mongoose from 'mongoose';
 
-const documentSchema = mongoose.Schema({
-    _id: {
-        type: String,
-        required: true
+const documentSchema = mongoose.Schema(
+    {
+        _id: {
+            type: String,
+            required: true
+        },
+        title: {
+            type: String,
+            default: 'Untitled document'
+        },
+        data: {
+            type: Object,
+            required: true
+        }
     },
-    data: {
-        type: Object,
-        required: true
-    }
-});
+    { timestamps: true }
+);
 
-const document = mongoose.model('document', documentSchema);
+const Document = mongoose.model('document', documentSchema);
 
-export default document;
+export default Document;

@@ -1,0 +1,111 @@
+/* === Dropdown Container === */
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* === Panel === */
+
+.dropdown-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 240px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    padding: 6px 0;
+    animation: dropdownIn 0.12s ease;
+    outline: none;
+}
+
+@keyframes dropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Items === */
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 7px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--color-text);
+    text-align: left;
+    gap: 10px;
+    transition: background-color 0.1s;
+    white-space: nowrap;
+}
+
+.dropdown-item:hover,
+.dropdown-item.focused {
+    background-color: var(--color-hover);
+}
+
+.dropdown-item.disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+}
+
+.dropdown-item.disabled:hover {
+    background: none;
+}
+
+.dropdown-item.danger {
+    color: #c5221f;
+}
+
+.dropdown-item.danger:hover {
+    background-color: #fce8e6;
+}
+
+.dropdown-item-icon {
+    font-size: 15px;
+    width: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.75;
+}
+
+.dropdown-item-label {
+    flex: 1;
+}
+
+.dropdown-item-shortcut {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+}
+
+/* === Divider === */
+
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 5px 0;
+}
+
+/* Active trigger */
+.navbar-menu-item.active {
+    background-color: var(--color-hover);
+    color: var(--color-text);
+}
