@@ -9,6 +9,7 @@ export function useSocket(accessToken) {
         if (!accessToken) return;
         const s = io('http://localhost:9000', {
             auth: { token: accessToken },
+            transports: ['websocket'],
         });
         setSocket(s);
         socketRef.current = s;

@@ -19,6 +19,7 @@
     z-index: 1000;
     padding: 6px 0;
     animation: dropdownIn 0.12s ease;
+    will-change: transform, opacity;
     outline: none;
 }
 
