@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import DropdownMenu from './DropdownMenu';
-import Modal from './Modal';
 import { useAuth } from '../context/AuthContext';
+import FindReplaceModal from './modals/FindReplaceModal';
+import WordCountModal from './modals/WordCountModal';
+import ShortcutsModal from './modals/ShortcutsModal';
+import AboutModal from './modals/AboutModal';
 import './Navbar.css';
 
 const API = 'http://localhost:9000';
@@ -15,130 +18,6 @@ const DocsIcon = () => (
         <rect x="5" y="18" width="14" height="2" rx="1" fill="white" />
         <rect x="5" y="22" width="9" height="2" rx="1" fill="white" />
     </svg>
-);
-
-// ── Modal Contents ────────────────────────────────────────
-
-const FindReplaceModal = ({ quill, onClose }) => {
-    const [find, setFind] = useState('');
-    const [replace, setReplace] = useState('');
-    const [msg, setMsg] = useState('');
-
-    const doFind = () => {
-        if (!quill || !find) return;
-        const text = quill.getText();
-        const idx = text.indexOf(find);
-        if (idx === -1) { setMsg('Not found.'); return; }
-        quill.setSelection(idx, find.length);
-        setMsg(`Found at position ${idx}`);
-    };
-
-    const doReplace = () => {
-        if (!quill || !find) return;
-        const text = quill.getText();
-        let count = 0;
-        let idx = text.indexOf(find);
-        while (idx !== -1) {
-            quill.deleteText(idx, find.length);
-            quill.insertText(idx, replace);
-            count++;
-            idx = quill.getText().indexOf(find, idx + replace.length);
-        }
-        setMsg(count > 0 ? `Replaced ${count} occurrence(s).` : 'Not found.');
-    };
-
-    return (
-        <Modal title="Find & Replace" onClose={onClose} footer={
-            <>
-                <button className="modal-btn modal-btn-secondary" onClick={doFind}>Find</button>
-                <button className="modal-btn modal-btn-primary" onClick={doReplace}>Replace All</button>
-            </>
-        }>
-            <div className="modal-field">
-                <label className="modal-label">Find</label>
-                <input className="modal-input" value={find} onChange={e => setFind(e.target.value)} placeholder="Search text…" />
-            </div>
-            <div className="modal-field">
-                <label className="modal-label">Replace with</label>
-                <input className="modal-input" value={replace} onChange={e => setReplace(e.target.value)} placeholder="Replacement text…" />
-            </div>
-            <div className="modal-find-results">{msg}</div>
-        </Modal>
-    );
-};
-
-const WordCountModal = ({ quill, onClose }) => {
-    const text = quill ? quill.getText() : '';
-    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    const chars = text.length > 0 ? text.length - 1 : 0; // subtract trailing newline
-    const lines = text.split('\n').filter(l => l.trim()).length;
-    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim()).length;
-
-    return (
-        <Modal title="Word Count" onClose={onClose}>
-            <div className="modal-stat-grid">
-                <div className="modal-stat">
-                    <span className="modal-stat-value">{words.toLocaleString()}</span>
-                    <div className="modal-stat-label">Words</div>
-                </div>
-                <div className="modal-stat">
-                    <span className="modal-stat-value">{chars.toLocaleString()}</span>
-                    <div className="modal-stat-label">Characters</div>
-                </div>
-                <div className="modal-stat">
-                    <span className="modal-stat-value">{lines.toLocaleString()}</span>
-                    <div className="modal-stat-label">Lines</div>
-                </div>
-                <div className="modal-stat">
-                    <span className="modal-stat-value">{paragraphs.toLocaleString()}</span>
-                    <div className="modal-stat-label">Paragraphs</div>
-                </div>
-            </div>
-        </Modal>
-    );
-};
-
-const ShortcutsModal = ({ onClose }) => {
-    const shortcuts = [
-        ['Bold', '⌘ B'],
-        ['Italic', '⌘ I'],
-        ['Underline', '⌘ U'],
-        ['Undo', '⌘ Z'],
-        ['Redo', '⌘ ⇧ Z'],
-        ['Select All', '⌘ A'],
-        ['Find & Replace', '⌘ H'],
-        ['Print', '⌘ P'],
-        ['Save (auto)', 'Every 2s'],
-    ];
-    return (
-        <Modal title="Keyboard Shortcuts" onClose={onClose}>
-            <table className="modal-table">
-                <thead><tr><th>Action</th><th>Shortcut</th></tr></thead>
-                <tbody>
-                    {shortcuts.map(([action, sc]) => (
-                        <tr key={action}>
-                            <td>{action}</td>
-                            <td><span className="modal-shortcut-key">{sc}</span></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </Modal>
-    );
-};
-
-const AboutModal = ({ onClose }) => (
-    <Modal title="About MeDocs" onClose={onClose}>
-        <div style={{ textAlign: 'center', padding: '8px 0' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>MeDocs</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 16, lineHeight: 1.6 }}>
-                A real-time collaborative document editor.<br />
-                Built with React, Quill, Socket.IO, and MongoDB.
-            </p>
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Version 1.0.0</p>
-        </div>
-    </Modal>
 );
 
 // ── Helpers ────────────────────────────────────────────────
