@@ -201,3 +201,37 @@
   color: var(--color-text);
   border-color: var(--color-border);
 }
+
+/* === Remote Cursor Styles (quill-cursors) === */
+
+.ql-cursor-caret-container {
+  z-index: 10;
+}
+
+.ql-cursor-caret {
+  width: 2px !important;
+}
+
+.ql-cursor-flag {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  line-height: 1.4;
+}
+
+.ql-cursor-flag small {
+  color: #fff !important;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.ql-cursor-selection-block {
+  opacity: 0.25;
+}

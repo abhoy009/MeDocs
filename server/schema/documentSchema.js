@@ -12,7 +12,11 @@ const documentSchema = mongoose.Schema(
         },
         data: {
             type: Object,
-            required: true
+            default: { ops: [] }
+        },
+        yState: {
+            type: Buffer,
+            default: null
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,

@@ -4,12 +4,13 @@ export const getDocument = async (id, userId = null) => {
     if (!id) return;
     const document = await Document.findById(id);
     if (document) return document;
-    // Create new doc, assigning owner if provided
-    return await Document.create({ _id: id, data: '', title: 'Untitled document', owner: userId });
+    return await Document.create({ _id: id, data: { ops: [] }, title: 'Untitled document', owner: userId });
 };
 
-export const updateDocument = async (id, data) => {
-    return await Document.findByIdAndUpdate(id, { data }, { new: true });
+export const updateDocument = async (id, { yState, data }) => {
+    const update = { yState };
+    if (data) update.data = data;
+    return await Document.findByIdAndUpdate(id, update, { new: true });
 };
 
 export const updateTitle = async (id, title) => {

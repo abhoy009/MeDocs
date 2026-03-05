@@ -50,6 +50,7 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 .idea/
+.cursor/
 *.suo
 *.ntvs*
 *.njsproj
