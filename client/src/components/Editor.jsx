@@ -37,6 +37,7 @@ const Editor = () => {
     const quillRef = useRef(null);
     const socketRef = useRef(null);
     const titleDebounce = useRef(null);
+    const isDirty = useRef(false);
 
     // Initialize Quill once
     useEffect(() => {
@@ -74,12 +75,14 @@ const Editor = () => {
         return () => s.disconnect();
     }, [accessToken]);
 
-    // Send changes
+    // Send changes and mark dirty
     useEffect(() => {
         if (!socket || !quill) return;
         const handler = (delta, _old, source) => {
             if (source !== 'user') return;
             socket.emit('send-changes', delta);
+            isDirty.current = true;
+            setSaveStatus('unsaved');
         };
         quill.on('text-change', handler);
         return () => quill.off('text-change', handler);
@@ -114,10 +117,12 @@ const Editor = () => {
         return () => socket.off('title-updated', handler);
     }, [socket]);
 
-    // Auto-save every 2s
+    // Auto-save only when content has changed
     useEffect(() => {
         if (!socket || !quill) return;
         const interval = setInterval(() => {
+            if (!isDirty.current) return;
+            isDirty.current = false;
             setSaveStatus('saving');
             socket.emit('save-document', quill.getContents());
             setTimeout(() => setSaveStatus('saved'), 600);
