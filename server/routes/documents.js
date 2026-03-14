@@ -4,6 +4,7 @@ import {
     getAllDocuments,
     deleteDocument,
     exportDocument,
+    updateTitle,
 } from '../controller/document-controller.js';
 
 const router = Router();
@@ -41,6 +42,19 @@ router.delete('/:id', async (req, res) => {
         res.json({ success: true, id });
     } catch (err) {
         res.status(err.message.includes('Unauthorized') ? 403 : 500).json({ error: err.message });
+    }
+});
+
+router.patch('/:id/title', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title } = req.body;
+        if (!title || typeof title !== 'string') return res.status(400).json({ error: 'Title is required' });
+        const doc = await updateTitle(id, title.trim());
+        if (!doc) return res.status(404).json({ error: 'Document not found' });
+        res.json({ id, title: doc.title });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

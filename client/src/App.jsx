@@ -1,13 +1,13 @@
 import './App.css';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const Editor = lazy(() => import('./components/Editor'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 
 function RouteSpinner() {
     return (
@@ -39,7 +39,14 @@ function App() {
                             }
                         />
 
-                        <Route path="/" element={<Navigate replace to={`/docs/${uuid()}`} />} />
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <DashboardPage />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route path="*" element={<Navigate replace to="/" />} />
                     </Routes>
                 </Suspense>
