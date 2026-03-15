@@ -19,7 +19,17 @@ export const updateTitle = async (id, title) => {
 
 export const getAllDocuments = async (userId) => {
     const query = userId ? { owner: userId } : {};
-    return await Document.find(query, { _id: 1, title: 1, updatedAt: 1, owner: 1 }).sort({ updatedAt: -1 });
+    const docs = await Document.find(query, { _id: 1, title: 1, updatedAt: 1, owner: 1, data: 1 }).sort({ updatedAt: -1 });
+    return docs.map(doc => {
+        const ops = doc.data?.ops || [];
+        const snippet = ops
+            .map(op => (typeof op.insert === 'string' ? op.insert : ''))
+            .join('')
+            .replace(/\n+/g, ' ')
+            .trim()
+            .slice(0, 120);
+        return { _id: doc._id, title: doc.title, updatedAt: doc.updatedAt, owner: doc.owner, snippet };
+    });
 };
 
 export const deleteDocument = async (id, userId = null) => {

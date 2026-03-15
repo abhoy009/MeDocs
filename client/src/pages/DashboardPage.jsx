@@ -4,6 +4,22 @@ import { useAuth } from '../context/AuthContext';
 import { useDocuments } from '../hooks/useDocuments';
 import './DashboardPage.css';
 
+/* ── Theme hook (syncs with the same key Navbar uses) ─────────── */
+function useTheme() {
+    const [isDark, setIsDark] = useState(() => {
+        const saved = localStorage.getItem('medocs-theme');
+        if (saved) return saved === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    });
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('medocs-theme', isDark ? 'dark' : 'light');
+    }, [isDark]);
+
+    return [isDark, () => setIsDark(d => !d)];
+}
+
 /* ── Helpers ─────────────────────────────────────────────────── */
 function timeAgo(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -100,9 +116,15 @@ function DocCard({ doc, onDelete, onRename }) {
     return (
         <div className="doc-card" onClick={open} tabIndex={0} onKeyDown={e => e.key === 'Enter' && open()}>
             <div className="doc-card__preview">
-                <div className="doc-card__lines">
-                    {[...Array(6)].map((_, i) => <div key={i} className="doc-card__line" style={{ width: `${55 + (i * 17) % 40}%` }} />)}
-                </div>
+                {doc.snippet ? (
+                    <p className="doc-card__snippet">{doc.snippet}</p>
+                ) : (
+                    <div className="doc-card__lines">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="doc-card__line" style={{ width: `${55 + (i * 17) % 40}%` }} />
+                        ))}
+                    </div>
+                )}
             </div>
             <div className="doc-card__meta">
                 <DocMenu
@@ -146,17 +168,79 @@ function EmptyState({ onCreate }) {
     );
 }
 
-/* ── Dashboard Page ──────────────────────────────────────────── */
-export default function DashboardPage() {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-    const { docs, loading, error, createDoc, deleteDoc, renameDoc } = useDocuments();
+/* ── User Menu (avatar dropdown) ─────────────────────────────── */
+function UserMenu({ user, isDark, onToggleTheme, onLogout }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
 
-    const handleLogout = async () => { await logout(); navigate('/login'); };
+    useEffect(() => {
+        if (!open) return;
+        const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', close);
+        return () => document.removeEventListener('mousedown', close);
+    }, [open]);
 
     const initials = user?.name
         ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : '?';
+
+    return (
+        <div className="user-menu-wrap" ref={ref}>
+            <button
+                className="avatar"
+                onClick={() => setOpen(v => !v)}
+                title={user?.name || 'Account'}
+                aria-label="Account menu"
+            >
+                {initials}
+            </button>
+
+            {open && (
+                <div className="user-dropdown">
+                    {/* Profile info */}
+                    <div className="user-dropdown__profile">
+                        <div className="user-dropdown__avatar">{initials}</div>
+                        <div>
+                            <p className="user-dropdown__name">{user?.name}</p>
+                            <p className="user-dropdown__email">{user?.email}</p>
+                        </div>
+                    </div>
+
+                    <div className="user-dropdown__divider" />
+
+                    {/* Theme toggle */}
+                    <button
+                        className="user-dropdown__item"
+                        onClick={() => { onToggleTheme(); }}
+                    >
+                        <span>{isDark ? '☀️' : '🌙'}</span>
+                        {isDark ? 'Light mode' : 'Dark mode'}
+                    </button>
+
+                    <div className="user-dropdown__divider" />
+
+                    {/* Sign out */}
+                    <button
+                        className="user-dropdown__item user-dropdown__item--danger"
+                        onClick={() => { setOpen(false); onLogout(); }}
+                    >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign out
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ── Dashboard Page ──────────────────────────────────────────── */
+export default function DashboardPage() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const [isDark, toggleTheme] = useTheme();
+    const { docs, loading, error, createDoc, deleteDoc, renameDoc } = useDocuments();
+
+    const handleLogout = async () => { await logout(); navigate('/login'); };
 
     return (
         <div className="dashboard">
@@ -174,9 +258,12 @@ export default function DashboardPage() {
 
                 <div className="dashboard__user">
                     {user?.name && <span className="user-greeting">Hi, {user.name.split(' ')[0]}</span>}
-                    <button className="avatar" onClick={handleLogout} title={`${user?.name || ''} — click to sign out`}>
-                        {initials}
-                    </button>
+                    <UserMenu
+                        user={user}
+                        isDark={isDark}
+                        onToggleTheme={toggleTheme}
+                        onLogout={handleLogout}
+                    />
                 </div>
             </header>
 
