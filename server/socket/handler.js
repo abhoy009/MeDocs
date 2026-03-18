@@ -2,12 +2,14 @@ import { Server } from 'socket.io';
 import * as Y from 'yjs';
 import { socketAuthMiddleware } from '../middleware/auth.js';
 import { getDocument, updateTitle } from '../controller/document-controller.js';
+import { restoreVersion } from '../controller/document-controller.js';
 import {
     getOrCreateYDoc,
     migrateFromLegacyDelta,
     persistDoc,
     getActiveDoc,
     scheduleCleanup,
+    replaceYDocState,
 } from '../services/yjsManager.js';
 
 export function setupSocket(httpServer) {
@@ -71,6 +73,24 @@ export function setupSocket(httpServer) {
             socket.on('save-title', async (title) => {
                 await updateTitle(documentId, title);
                 socket.broadcast.to(documentId).emit('title-updated', title);
+            });
+
+            // Restore a saved version — replaces the in-memory Y.Doc and reloads all clients
+            socket.on('restore-version', async ({ versionId }) => {
+                try {
+                    // 1. Update MongoDB with the snapshot's yState + data
+                    const result = await restoreVersion(documentId, versionId);
+                    if (!result) return;
+
+                    // 2. Replace the in-memory Y.Doc (Yjs is additive — we MUST swap it out)
+                    replaceYDocState(documentId, new Uint8Array(result.yState));
+
+                    // 3. Tell ALL clients in the room to reload — they will reconnect
+                    //    and receive the restored state via 'load-document'
+                    io.to(documentId).emit('restore-document');
+                } catch (err) {
+                    console.error('restore-version failed:', err.message);
+                }
             });
         });
 

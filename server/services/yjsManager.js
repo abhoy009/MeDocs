@@ -73,6 +73,41 @@ export function getActiveDoc(documentId) {
     return activeDocs.get(documentId);
 }
 
+/**
+ * Replaces the in-memory Y.Doc for a document with a fresh one derived from
+ * a snapshot yState. This is the only correct way to "revert" in Yjs because
+ * the CRDT is append-only — you cannot un-apply updates.
+ *
+ * Returns the encoded state of the new Y.Doc so the caller can broadcast it.
+ */
+export function replaceYDocState(documentId, snapshotYState) {
+    const entry = activeDocs.get(documentId);
+
+    // Build the new doc from the snapshot
+    const freshDoc = new Y.Doc();
+    Y.applyUpdate(freshDoc, snapshotYState);
+
+    if (entry) {
+        // Destroy the old doc
+        entry.yDoc.destroy();
+
+        // Swap in the fresh one and re-attach the dirty listener
+        entry.yDoc = freshDoc;
+        freshDoc.on('update', () => { entry.dirty = true; });
+        entry.dirty = false;   // already persisted by restoreVersion()
+    } else {
+        // No active entry — create one so reconnecting clients get the right state
+        freshDoc.on('update', () => {
+            const e = activeDocs.get(documentId);
+            if (e) e.dirty = true;
+        });
+        activeDocs.set(documentId, { yDoc: freshDoc, clients: new Set(), dirty: false, cleanupTimer: null });
+    }
+
+    return Y.encodeStateAsUpdate(freshDoc);
+}
+
+
 export function startPeriodicSave() {
     return setInterval(async () => {
         for (const [docId] of activeDocs) {

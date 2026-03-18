@@ -6,6 +6,7 @@ import FindReplaceModal from './modals/FindReplaceModal';
 import WordCountModal from './modals/WordCountModal';
 import ShortcutsModal from './modals/ShortcutsModal';
 import AboutModal from './modals/AboutModal';
+import VersionHistoryModal from './modals/VersionHistoryModal';
 import './Navbar.css';
 
 const API = 'http://localhost:9000';
@@ -36,7 +37,7 @@ const downloadFromUrl = async (url, filename, token) => {
 
 // ── Navbar ─────────────────────────────────────────────────
 
-const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, currentUserId, accessToken }) => {
+const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, currentUserId, accessToken, yDocRef, socket }) => {
     const { user, logout } = useAuth();
     const [copied, setCopied] = useState(false);
     const [titleEditing, setTitleEditing] = useState(false);
@@ -139,6 +140,33 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
         },
         { divider: true },
         { label: 'Rename', icon: '✏️', action: () => setTitleEditing(true) },
+        { divider: true },
+        {
+            label: 'Save snapshot…', icon: '📸',
+            action: async () => {
+                const label = prompt('Name this snapshot (press Enter to use default):');
+                if (label === null) return; // cancelled
+                const yDoc = yDocRef?.current;
+                if (!yDoc) return;
+                const Y = await import('yjs');
+                const yStateArr = Array.from(Y.encodeStateAsUpdate(yDoc));
+                const delta = yDoc.getText('quill').toDelta();
+                const data = { ops: delta || [] };
+                try {
+                    await fetch(`http://localhost:9000/api/documents/${docId}/versions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+                        body: JSON.stringify({ label: label || 'Snapshot', yState: yStateArr, data }),
+                    });
+                } catch (e) {
+                    console.error('Save snapshot failed:', e);
+                }
+            }
+        },
+        {
+            label: 'Version history', icon: '🕐',
+            action: () => openModal('versionHistory'),
+        },
         { divider: true },
         {
             label: 'Download as .txt', icon: '⬇️',
@@ -372,6 +400,14 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
             {modal === 'wordCount' && <WordCountModal quill={quill} onClose={closeModal} />}
             {modal === 'shortcuts' && <ShortcutsModal onClose={closeModal} />}
             {modal === 'about' && <AboutModal onClose={closeModal} />}
+            {modal === 'versionHistory' && (
+                <VersionHistoryModal
+                    docId={docId}
+                    accessToken={accessToken}
+                    socket={socket}
+                    onClose={closeModal}
+                />
+            )}
         </>
     );
 };

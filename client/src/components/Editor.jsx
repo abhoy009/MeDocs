@@ -21,7 +21,7 @@ const Editor = () => {
 
     const { socket, socketRef } = useSocket(accessToken);
 
-    const { saveStatus, docTitle, docOwner, setDocTitle } = useYjsSync({
+    const { saveStatus, docTitle, docOwner, setDocTitle, yDocRef } = useYjsSync({
         socket, quill, documentId: id, user,
     });
 
@@ -68,6 +68,8 @@ const Editor = () => {
                 docOwner={docOwner}
                 currentUserId={user?.id}
                 accessToken={accessToken}
+                yDocRef={yDocRef}
+                socket={socket}
             />
             <div className="editor-wrapper">
                 <div ref={containerRef} />

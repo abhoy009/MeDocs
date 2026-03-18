@@ -10,11 +10,13 @@ export function useYjsSync({ socket, quill, documentId, user }) {
     const [docOwner, setDocOwner] = useState(null);
     const bindingRef = useRef(null);
     const undoManagerRef = useRef(null);
+    const yDocRef = useRef(null); // exposed so Navbar can snapshot
 
     useEffect(() => {
         if (!socket || !quill) return;
 
         const yDoc = new Y.Doc();
+        yDocRef.current = yDoc;
         const yText = yDoc.getText('quill');
 
         const awareness = new Awareness(yDoc);
@@ -62,6 +64,12 @@ export function useYjsSync({ socket, quill, documentId, user }) {
         };
         socket.on('yjs-update', onRemoteYjsUpdate);
 
+        // Restore: server has replaced its Y.Doc — reload to get the fresh state
+        const onRestoreDocument = () => {
+            window.location.reload();
+        };
+        socket.on('restore-document', onRestoreDocument);
+
         const onAwarenessUpdate = ({ added, updated, removed }) => {
             const changedClients = [...added, ...updated, ...removed];
             const update = encodeAwarenessUpdate(awareness, changedClients);
@@ -108,6 +116,7 @@ export function useYjsSync({ socket, quill, documentId, user }) {
             quill.root.removeEventListener('keydown', onKeyDown, true);
             yDoc.off('update', onYjsUpdate);
             socket.off('yjs-update', onRemoteYjsUpdate);
+            socket.off('restore-document', onRestoreDocument);
             socket.off('awareness-update', onRemoteAwareness);
             socket.off('awareness-remove', onAwarenessRemove);
             awareness.off('update', onAwarenessUpdate);
@@ -121,8 +130,9 @@ export function useYjsSync({ socket, quill, documentId, user }) {
             }
             awareness.destroy();
             yDoc.destroy();
+            yDocRef.current = null;
         };
     }, [quill, socket, documentId, user]);
 
-    return { saveStatus, docTitle, docOwner, setDocTitle, setDocOwner };
+    return { saveStatus, docTitle, docOwner, setDocTitle, setDocOwner, yDocRef };
 }
