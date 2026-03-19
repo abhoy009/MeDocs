@@ -66,7 +66,7 @@ flowchart TB
     subgraph Backend["Node.js Backend"]
       API[Express REST API]
       WS[Socket.IO Gateway]
-      YM[Yjs Manager (activeDocs Map)]
+      YM["Yjs Manager (activeDocs Map)"]
     end
 
     DB[(MongoDB)]
