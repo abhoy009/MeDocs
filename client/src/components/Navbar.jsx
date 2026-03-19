@@ -351,12 +351,22 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
 
                     {/* Theme toggle */}
                     <button
-                        className="theme-toggle-btn"
+                        className="icon-btn"
                         onClick={toggleTheme}
                         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                         aria-label="Toggle theme"
                     >
                         {isDark ? '☀️' : '🌙'}
+                    </button>
+
+                    {/* Version History Button */}
+                    <button
+                        className="icon-btn"
+                        onClick={() => openModal('versionHistory')}
+                        title="View version history"
+                        aria-label="Version history"
+                    >
+                        🕒
                     </button>
 
                     <button className="share-btn" onClick={handleShare}>
