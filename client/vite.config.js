@@ -11,7 +11,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-quill': ['quill', 'quill-cursors'],
-          'vendor-yjs': ['yjs', 'y-quill', 'y-protocols'],
+          'vendor-yjs': ['yjs', 'y-quill', 'y-protocols/awareness'],
           'vendor-socket': ['socket.io-client'],
         },
       },
