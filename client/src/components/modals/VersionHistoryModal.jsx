@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import * as Y from 'yjs';
 import './VersionHistoryModal.css';
 
-const API = 'http://localhost:9000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function timeAgo(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();

@@ -8,10 +8,12 @@ const REFRESH_EXPIRY = '7d';
 const signAccess = (payload) => jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: ACCESS_EXPIRY });
 const signRefresh = (payload) => jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_EXPIRY });
 
+const isProduction = process.env.NODE_ENV === 'production';
 const cookieOptions = {
-    httpOnly: true,       // not accessible from JS (XSS safe)
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days in ms
+    httpOnly: true, // not accessible from JS (XSS safe)
+    sameSite: isProduction ? 'none' : 'strict',
+    secure: isProduction,
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
 };
 
 // POST /api/auth/register
@@ -92,6 +94,10 @@ export const refresh = async (req, res) => {
 
 // POST /api/auth/logout
 export const logout = (_req, res) => {
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'strict' });
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'strict',
+        secure: isProduction,
+    });
     res.json({ message: 'Logged out.' });
 };

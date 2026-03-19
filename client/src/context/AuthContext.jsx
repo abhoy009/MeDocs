@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const AuthContext = createContext(null);
 
-const API = 'http://localhost:9000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);

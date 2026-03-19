@@ -13,9 +13,10 @@ import {
 } from '../services/yjsManager.js';
 
 export function setupSocket(httpServer) {
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
     const io = new Server(httpServer, {
         cors: {
-            origin: 'http://localhost:5173',
+            origin: FRONTEND_URL,
             methods: ['GET', 'POST', 'DELETE'],
             credentials: true,
         },

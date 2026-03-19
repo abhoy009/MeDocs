@@ -9,7 +9,7 @@ import AboutModal from './modals/AboutModal';
 import VersionHistoryModal from './modals/VersionHistoryModal';
 import './Navbar.css';
 
-const API = 'http://localhost:9000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const DocsIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 24 32" fill="none">
@@ -153,7 +153,7 @@ const Navbar = ({ saveStatus, docTitle, setDocTitle, quill, docId, docOwner, cur
                 const delta = yDoc.getText('quill').toDelta();
                 const data = { ops: delta || [] };
                 try {
-                    await fetch(`http://localhost:9000/api/documents/${docId}/versions`, {
+                    await fetch(`${API}/api/documents/${docId}/versions`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
                         body: JSON.stringify({ label: label || 'Snapshot', yState: yStateArr, data }),

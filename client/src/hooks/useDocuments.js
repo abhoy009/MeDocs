@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import { useAuth } from '../context/AuthContext';
 
-const API = 'http://localhost:9000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 export function useDocuments() {
     const { accessToken } = useAuth();
