@@ -11,11 +11,21 @@ export function useSocket(accessToken) {
         if (!accessToken) return;
         const s = io(API, {
             auth: { token: accessToken },
-            transports: ['websocket'],
+            transports: ['websocket', 'polling'],
+            withCredentials: true,
+            reconnection: true,
         });
+
+        s.on('connect_error', (err) => {
+            console.error('Socket connect_error:', err?.message || err);
+        });
+
         setSocket(s);
         socketRef.current = s;
-        return () => s.disconnect();
+        return () => {
+            s.off('connect_error');
+            s.disconnect();
+        };
     }, [accessToken]);
 
     return { socket, socketRef };

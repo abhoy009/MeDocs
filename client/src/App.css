@@ -76,6 +76,7 @@
 .ql-container.ql-snow {
   border: none !important;
   background-color: var(--color-bg);
+  position: relative;
   flex: 1;
   width: 100% !important;
   font-family: var(--font) !important;
@@ -85,9 +86,29 @@
   padding: 24px 0 48px 0;
 }
 
+.ghost-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.ghost-text {
+  position: absolute;
+  z-index: 10;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font);
+}
+
 /* === Document Canvas (A4-style white page) === */
 
 .ql-editor {
+  position: relative;
   font-family: var(--font) !important;
   font-size: 11pt !important;
   line-height: 1.7 !important;
@@ -183,6 +204,10 @@
 
 [data-theme="dark"] .ql-container.ql-snow {
   background-color: var(--color-bg);
+}
+
+[data-theme="dark"] .ghost-text {
+  color: var(--color-text-muted);
 }
 
 [data-theme="dark"] .ql-editor {

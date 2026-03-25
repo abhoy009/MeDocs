@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import authRoutes from './routes/auth.js';
 import documentRoutes from './routes/documents.js';
+import aiRoutes from './routes/ai.js';
 
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -23,5 +24,6 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/ai', aiRoutes);
 
 export default app;

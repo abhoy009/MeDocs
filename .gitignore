@@ -73,3 +73,7 @@ client/.vite/
 *.tar.gz
 .cache/
 .parcel-cache/
+
+
+# AI Context
+.ai/
