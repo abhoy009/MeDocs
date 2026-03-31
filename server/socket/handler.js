@@ -84,11 +84,11 @@ export function setupSocket(httpServer) {
                     if (!result) return;
 
                     // 2. Replace the in-memory Y.Doc (Yjs is additive — we MUST swap it out)
-                    replaceYDocState(documentId, new Uint8Array(result.yState));
+                    const freshState = replaceYDocState(documentId, new Uint8Array(result.yState));
 
-                    // 3. Tell ALL clients in the room to reload — they will reconnect
-                    //    and receive the restored state via 'load-document'
-                    io.to(documentId).emit('restore-document');
+                    // 3. Broadcast the new encoded state to all clients so they can
+                    //    apply it in-place — no page reload required.
+                    io.to(documentId).emit('restore-document', { yState: Array.from(freshState) });
                 } catch (err) {
                     console.error('restore-version failed:', err.message);
                 }
